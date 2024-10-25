@@ -1,5 +1,8 @@
 name: CI
 
+permissions:
+  contents: read
+
 on:
     push:
         branches:
@@ -15,7 +18,7 @@ jobs:
                     - 'windows-latest'
 
         runs-on: ${{ matrix.os }}
-    
+
         steps:
             - name: Prep CI
               id: prep_ci
@@ -31,7 +34,7 @@ jobs:
                 $matrix_os = $env:MATRIX_OS
                 if ([string]::IsNullOrWhiteSpace($matrix_os)) { $matrix_os = 'unknown' }
                 $os_label = $matrix_os.Split('-')[0]
-                
+
                 Write-ActionInfo "Resolved `$env:OS_LABEL as [$os_label]"
                 Set-ActionVariable -Name OS_LABEL -Value $os_label
                 Set-ActionOutput   -Name os_label -Value $os_label
@@ -43,10 +46,10 @@ jobs:
               uses: actions/setup-dotnet@v1
               with:
                 dotnet-version: 2.1.*
-                
+
             - name: Install dependencies
               run: dotnet restore
-            
+
             - name: Build
               run: dotnet build --configuration Release --no-restore
               #run: dotnet build --configuration Release
@@ -153,7 +156,7 @@ jobs:
                 gist_name: acmesharpcore-unit_tests-${{ steps.prep_ci.outputs.os_label }}.md
                 gist_badge_label: 'Base Unit Tests: %Counters_passed%/%Counters_total%'
                 gist_token: ${{ secrets.GIST_TOKEN }}
-      
+
             - name: Test - SimplePKI Unit Tests
               id: simplepki_unit_tests
               if: ${{ !cancelled() && steps.prep_tests.outcome == 'success' }}
